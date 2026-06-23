@@ -1,6 +1,7 @@
-import { LayoutDashboard, ArrowLeftRight, Tag, Settings, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, Tag, Settings, TrendingUp, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFinanceStore } from '../../store/financeStore';
+import { useAuthStore } from '../../store/authStore';
 import { formatCurrency } from '../../utils/formatters';
 import { useActiveSection } from '../../hooks/useActiveSection';
 
@@ -19,6 +20,7 @@ function scrollTo(sectionId: string) {
 
 export function Sidebar() {
   const { transactions } = useFinanceStore();
+  const { user, signOut } = useAuthStore();
   const activeId = useActiveSection(SECTION_IDS, 'main-scroll');
 
   const totalIncome  = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
@@ -103,7 +105,7 @@ export function Sidebar() {
 
       {/* Balance summary */}
       <div
-        className="mx-3 mb-4 p-4 rounded-2xl cursor-pointer"
+        className="mx-3 p-4 rounded-2xl cursor-pointer"
         style={{ background: '#1A2235', border: '1px solid #1E2D45' }}
         onClick={() => scrollTo('dashboard')}
       >
@@ -119,6 +121,25 @@ export function Sidebar() {
             <span className="text-[10px]">↓</span>{formatCurrency(totalExpense)}
           </span>
         </div>
+      </div>
+
+      {/* User + logout */}
+      <div className="mx-3 mb-4 mt-3 flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ border: '1px solid #1E2D45' }}>
+        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+          <span className="text-[10px] font-mono font-bold text-accent uppercase">
+            {user?.email?.[0] ?? '?'}
+          </span>
+        </div>
+        <p className="flex-1 text-[11px] font-sans text-[#8B9DC3] truncate min-w-0">
+          {user?.email ?? ''}
+        </p>
+        <button
+          onClick={signOut}
+          title="Çıkış Yap"
+          className="p-1.5 rounded-lg text-[#4A5C80] hover:text-expense hover:bg-expense/10 transition-colors flex-shrink-0"
+        >
+          <LogOut size={13} />
+        </button>
       </div>
     </aside>
   );

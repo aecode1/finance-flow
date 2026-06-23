@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { TrendingUp } from 'lucide-react';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
@@ -7,6 +9,9 @@ import { PieChartPanel } from './components/dashboard/PieChartPanel';
 import { TransactionList } from './components/dashboard/TransactionList';
 import { CategoryBreakdown } from './components/dashboard/CategoryBreakdown';
 import { AddTransactionModal } from './components/modals/AddTransactionModal';
+import { AuthPage } from './components/auth/AuthPage';
+import { useAuthStore } from './store/authStore';
+import { useFinanceStore } from './store/financeStore';
 import { Settings, Database, Bell, Shield, Moon } from 'lucide-react';
 
 function SettingsSection() {
@@ -57,15 +62,56 @@ function SettingsSection() {
 
       <div className="px-6 py-4 border-t border-[#162035] text-center">
         <p className="text-[10px] font-mono text-[#4A5C80] uppercase tracking-widest">
-          FinanceFlow v0.1.0 — Veriler localStorage'da saklanır
+          FinanceFlow v0.1.0 — Supabase Auth + localStorage
         </p>
       </div>
     </div>
   );
 }
 
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-base flex items-center justify-center">
+      <motion.div
+        className="flex flex-col items-center gap-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <motion.div
+          className="w-12 h-12 rounded-2xl bg-accent/15 border border-accent/20 flex items-center justify-center"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <TrendingUp size={22} className="text-accent" />
+        </motion.div>
+        <p className="text-xs font-mono text-[#4A5C80] uppercase tracking-widest">Yükleniyor…</p>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, initialized, initialize } = useAuthStore();
+  const { loadForUser, resetStore } = useFinanceStore();
+
+  // Initialize Supabase auth session on mount
+  useEffect(() => {
+    initialize();
+  }, []);
+
+  // Load or clear finance data whenever auth user changes
+  useEffect(() => {
+    if (!initialized) return;
+    if (user) {
+      loadForUser(user.id);
+    } else {
+      resetStore();
+    }
+  }, [user?.id, initialized]);
+
+  if (!initialized) return <LoadingScreen />;
+  if (!user)        return <AuthPage />;
 
   return (
     <div className="flex h-screen bg-base overflow-hidden">
@@ -83,7 +129,6 @@ export default function App() {
           </section>
 
           <section id="kategoriler" className="scroll-mt-4 sm:scroll-mt-6">
-            {/* Desktop: 5-col grid | Mobile: stacked */}
             <div className="flex flex-col md:grid md:grid-cols-5 gap-4 sm:gap-5">
               <div className="md:col-span-3">
                 <PieChartPanel />
