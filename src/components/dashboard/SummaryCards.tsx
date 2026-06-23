@@ -13,7 +13,6 @@ interface CardConfig {
   borderColor: string;
   glowColor: string;
   TrendIcon: React.ElementType;
-  trendColor: string;
 }
 
 export function SummaryCards() {
@@ -36,7 +35,6 @@ export function SummaryCards() {
       borderColor: '#10B98130',
       glowColor:   'rgba(16,185,129,0.12)',
       TrendIcon:   ArrowUpRight,
-      trendColor:  '#10B981',
     },
     {
       label:       'Toplam Gider',
@@ -48,7 +46,6 @@ export function SummaryCards() {
       borderColor: '#F43F5E30',
       glowColor:   'rgba(244,63,94,0.12)',
       TrendIcon:   ArrowDownRight,
-      trendColor:  '#F43F5E',
     },
     {
       label:       'Net Bakiye',
@@ -62,12 +59,12 @@ export function SummaryCards() {
       borderColor: netBalance >= 0 ? '#10B98130' : '#F43F5E30',
       glowColor:   netBalance >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(244,63,94,0.12)',
       TrendIcon:   netBalance >= 0 ? ArrowUpRight : ArrowDownRight,
-      trendColor:  netBalance >= 0 ? '#10B981' : '#F43F5E',
     },
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    /* Mobile: tek sütun | Tablet+: 3 sütun */
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
       {cards.map((card, i) => {
         const Icon = card.icon;
         const TrendIcon = card.TrendIcon;
@@ -85,47 +82,54 @@ export function SummaryCards() {
               boxShadow: `0 0 0 1px ${card.borderColor}, 0 4px 24px ${card.glowColor}`,
             }}
           >
-            {/* Subtle top shine */}
+            {/* Top shine */}
             <div
               className="absolute top-0 left-0 right-0 h-px"
               style={{ background: `linear-gradient(90deg, transparent, ${card.color}50, transparent)` }}
             />
 
-            <div className="p-6">
-              {/* Top row */}
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: `${card.color}15`, border: `1px solid ${card.color}25` }}
-                >
-                  <Icon size={18} style={{ color: card.color }} />
-                </div>
-
-                <div
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-sans font-medium"
-                  style={{ backgroundColor: `${card.color}12`, color: card.trendColor }}
-                >
-                  <TrendIcon size={12} />
-                  {card.sublabel}
-                </div>
+            {/* Mobile: yatay düzen | Desktop: dikey */}
+            <div className="p-4 sm:p-6 flex sm:block items-center gap-4">
+              {/* Icon — mobilde solda */}
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: `${card.color}15`, border: `1px solid ${card.color}25` }}
+              >
+                <Icon size={18} style={{ color: card.color }} />
               </div>
 
-              {/* Label */}
-              <p className="text-xs font-sans font-medium uppercase tracking-widest mb-1.5" style={{ color: '#4A5C80' }}>
-                {card.label}
-              </p>
+              {/* Content */}
+              <div className="flex-1 min-w-0 sm:mt-0">
+                {/* Desktop: badge üstte | Mobile: badge gizli (yer kaplıyor) */}
+                <div className="hidden sm:flex justify-end mb-3">
+                  <div
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-sans font-medium"
+                    style={{ backgroundColor: `${card.color}12`, color: card.color }}
+                  >
+                    <TrendIcon size={12} />
+                    {card.sublabel}
+                  </div>
+                </div>
 
-              {/* Amount */}
-              <p className="font-display text-2xl font-bold leading-none" style={{ color: card.color }}>
-                {formatCurrency(card.amount)}
-              </p>
+                <p className="text-[10px] sm:text-xs font-sans font-medium uppercase tracking-widest mb-1" style={{ color: '#4A5C80' }}>
+                  {card.label}
+                </p>
+                <p className="font-display text-xl sm:text-2xl font-bold leading-none" style={{ color: card.color }}>
+                  {formatCurrency(card.amount)}
+                </p>
 
-              {/* Bottom divider shimmer */}
-              <div
-                className="mt-4 h-0.5 rounded-full"
-                style={{ background: `linear-gradient(90deg, ${card.color}30, transparent)` }}
-              />
+                {/* Mobile'da sublabel küçük yazı */}
+                <p className="sm:hidden text-[10px] font-sans mt-1" style={{ color: card.color + '99' }}>
+                  {card.sublabel}
+                </p>
+              </div>
             </div>
+
+            {/* Bottom shimmer — sadece desktop'ta */}
+            <div
+              className="hidden sm:block mx-6 mb-5 h-0.5 rounded-full"
+              style={{ background: `linear-gradient(90deg, ${card.color}30, transparent)` }}
+            />
           </motion.div>
         );
       })}
