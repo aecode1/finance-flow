@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base:       #080C16;
+  --bg-surface:    #0F1623;
+  --bg-elevated:   #1A2235;
+  --border:        #1E2D45;
+  --border-subtle: #162035;
+
+  --accent:        #6366F1;
+  --accent-soft:   #6366F120;
+
+  --income:        #10B981;
+  --income-soft:   #10B98115;
+  --expense:       #F43F5E;
+  --expense-soft:  #F43F5E15;
+
+  --gold:          #F59E0B;
+  --gold-soft:     #F59E0B15;
+
+  --text-primary:  #F0F4FF;
+  --text-secondary:#8B9DC3;
+  --text-muted:    #4A5C80;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #080C16;
+  color: #F0F4FF;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0F1623;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E2D45;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6366F1;
+}
+
+/* Glowing ring chart */
+.chart-glow-ring {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(99,102,241,0.4) 25%,
+    transparent 50%,
+    rgba(16,185,129,0.3) 75%,
+    transparent 100%
+  );
+  animation: spin 8s linear infinite;
+  filter: blur(8px);
+  z-index: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
