@@ -1,5 +1,6 @@
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { ExportExcelButton } from '../ExportExcelButton';
 
 interface HeaderProps {
   onAddTransaction: () => void;
@@ -27,12 +28,15 @@ export function Header({ onAddTransaction }: HeaderProps) {
         </button>
       </div>
 
-      {/* Add transaction button */}
-      <Button onClick={onAddTransaction} size="md" className="text-sm px-3 py-2 sm:px-4">
-        <Plus size={15} />
-        <span className="hidden sm:inline">İşlem Ekle</span>
-        <span className="sm:hidden">Ekle</span>
-      </Button>
+      {/* Action buttons */}
+      <div className="flex items-center gap-2">
+        <ExportExcelButton variant="header" />
+        <Button onClick={onAddTransaction} size="md" className="text-sm px-3 py-2 sm:px-4">
+          <Plus size={15} />
+          <span className="hidden sm:inline">İşlem Ekle</span>
+          <span className="sm:hidden">Ekle</span>
+        </Button>
+      </div>
     </header>
   );
 }

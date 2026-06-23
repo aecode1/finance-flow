@@ -8,6 +8,7 @@ import { TransactionList } from './components/dashboard/TransactionList';
 import { CategoryBreakdown } from './components/dashboard/CategoryBreakdown';
 import { AddTransactionModal } from './components/modals/AddTransactionModal';
 import { SaveDataModal } from './components/auth/SaveDataModal';
+import { ExportExcelButton } from './components/ExportExcelButton';
 import { useAuthStore } from './store/authStore';
 import { useFinanceStore } from './store/financeStore';
 import { Settings, Database, Bell, Shield, Moon, CloudUpload, LogOut } from 'lucide-react';
@@ -90,6 +91,11 @@ function SettingsSection({ onSaveData }: { onSaveData: () => void }) {
             </div>
           </button>
         )}
+      </div>
+
+      {/* Excel export card */}
+      <div className="px-4 sm:px-6 pb-1">
+        <ExportExcelButton variant="settings" />
       </div>
 
       <div className="px-3 sm:px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
