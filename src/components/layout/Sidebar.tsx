@@ -1,9 +1,11 @@
-import { LayoutDashboard, ArrowLeftRight, Tag, Settings, TrendingUp, LogOut } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, Tag, Settings, TrendingUp, LogOut, CloudUpload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFinanceStore } from '../../store/financeStore';
 import { useAuthStore } from '../../store/authStore';
 import { formatCurrency } from '../../utils/formatters';
 import { useActiveSection } from '../../hooks/useActiveSection';
+import { SaveDataModal } from '../auth/SaveDataModal';
+import { useState } from 'react';
 
 const SECTION_IDS = ['dashboard', 'kategoriler', 'islemler', 'ayarlar'];
 
@@ -22,6 +24,7 @@ export function Sidebar() {
   const { transactions } = useFinanceStore();
   const { user, signOut } = useAuthStore();
   const activeId = useActiveSection(SECTION_IDS, 'main-scroll');
+  const [saveOpen, setSaveOpen] = useState(false);
 
   const totalIncome  = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
@@ -123,24 +126,53 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* User + logout */}
-      <div className="mx-3 mb-4 mt-3 flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ border: '1px solid #1E2D45' }}>
-        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-          <span className="text-[10px] font-mono font-bold text-accent uppercase">
-            {user?.email?.[0] ?? '?'}
-          </span>
-        </div>
-        <p className="flex-1 text-[11px] font-sans text-[#8B9DC3] truncate min-w-0">
-          {user?.email ?? ''}
-        </p>
-        <button
-          onClick={signOut}
-          title="Çıkış Yap"
-          className="p-1.5 rounded-lg text-[#4A5C80] hover:text-expense hover:bg-expense/10 transition-colors flex-shrink-0"
-        >
-          <LogOut size={13} />
-        </button>
+      {/* Auth section */}
+      <div className="mx-3 mb-4 mt-3">
+        {user ? (
+          /* Logged in: user info + logout */
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ border: '1px solid #1E2D45' }}>
+            <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+              <span className="text-[10px] font-mono font-bold text-accent uppercase">
+                {user.email?.[0] ?? '?'}
+              </span>
+            </div>
+            <p className="flex-1 text-[11px] font-sans text-[#8B9DC3] truncate min-w-0">
+              {user.email}
+            </p>
+            <button
+              onClick={signOut}
+              title="Çıkış Yap"
+              className="p-1.5 rounded-lg text-[#4A5C80] hover:text-expense hover:bg-expense/10 transition-colors flex-shrink-0"
+            >
+              <LogOut size={13} />
+            </button>
+          </div>
+        ) : (
+          /* Guest: save data button */
+          <button
+            onClick={() => setSaveOpen(true)}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-sans font-semibold transition-all duration-200 group"
+            style={{
+              background: 'linear-gradient(135deg, #6366F110, #6366F108)',
+              border: '1px solid #6366F130',
+              color: '#8B9DC3',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = '#6366F160';
+              e.currentTarget.style.color = '#F0F4FF';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = '#6366F130';
+              e.currentTarget.style.color = '#8B9DC3';
+            }}
+          >
+            <CloudUpload size={14} className="text-accent flex-shrink-0" />
+            <span>Verilerimi Kaydet</span>
+          </button>
+        )}
       </div>
+
+      <SaveDataModal isOpen={saveOpen} onClose={() => setSaveOpen(false)} />
     </aside>
   );
 }

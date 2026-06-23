@@ -3,35 +3,32 @@ import { FinanceState, Transaction, Category } from '../types';
 import { defaultTransactions, defaultCategories } from '../data/daviData';
 import { nanoid } from 'nanoid';
 
-const STORAGE_KEY = (userId: string) => `ff-data-${userId}`;
+const GUEST_KEY = 'ff-data-guest';
+const userKey = (userId: string | null) => userId ? `ff-data-${userId}` : GUEST_KEY;
 
-function saveToStorage(userId: string, transactions: Transaction[], categories: Category[]) {
+function saveToStorage(key: string, transactions: Transaction[], categories: Category[]) {
   try {
-    localStorage.setItem(STORAGE_KEY(userId), JSON.stringify({ transactions, categories }));
-  } catch {
-    // storage full or unavailable
-  }
+    localStorage.setItem(key, JSON.stringify({ transactions, categories }));
+  } catch { /* storage full */ }
 }
 
-function loadFromStorage(userId: string): { transactions: Transaction[]; categories: Category[] } | null {
+function loadFromStorage(key: string): { transactions: Transaction[]; categories: Category[] } | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY(userId));
+    const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
-  } catch {
-    // parse error
-  }
+  } catch { /* parse error */ }
   return null;
 }
 
-let currentUserId: string | null = null;
+let activeKey: string = GUEST_KEY;
 
 export const useFinanceStore = create<FinanceState>()((set) => ({
   transactions: [],
   categories:   [],
 
-  loadForUser: (userId: string) => {
-    currentUserId = userId;
-    const saved = loadFromStorage(userId);
+  loadForUser: (userId) => {
+    activeKey = userKey(userId);
+    const saved = loadFromStorage(activeKey);
     set({
       transactions: saved?.transactions ?? defaultTransactions,
       categories:   saved?.categories   ?? defaultCategories,
@@ -39,35 +36,37 @@ export const useFinanceStore = create<FinanceState>()((set) => ({
   },
 
   resetStore: () => {
-    currentUserId = null;
-    set({ transactions: [], categories: [] });
+    activeKey = GUEST_KEY;
+    const saved = loadFromStorage(GUEST_KEY);
+    set({
+      transactions: saved?.transactions ?? defaultTransactions,
+      categories:   saved?.categories   ?? defaultCategories,
+    });
   },
 
   addTransaction: (data) =>
     set((s) => {
       const transactions = [{ ...data, id: `tx-${nanoid(6)}` }, ...s.transactions];
-      if (currentUserId) saveToStorage(currentUserId, transactions, s.categories);
+      saveToStorage(activeKey, transactions, s.categories);
       return { transactions };
     }),
 
   removeTransaction: (id) =>
     set((s) => {
       const transactions = s.transactions.filter((t) => t.id !== id);
-      if (currentUserId) saveToStorage(currentUserId, transactions, s.categories);
+      saveToStorage(activeKey, transactions, s.categories);
       return { transactions };
     }),
 
   addCategory: (data) =>
     set((s) => {
       const categories = [...s.categories, { ...data, id: `cat-${nanoid(6)}` }];
-      if (currentUserId) saveToStorage(currentUserId, s.transactions, categories);
+      saveToStorage(activeKey, s.transactions, categories);
       return { categories };
     }),
 }));
 
 // Auto-save on any state change
 useFinanceStore.subscribe((state) => {
-  if (currentUserId) {
-    saveToStorage(currentUserId, state.transactions, state.categories);
-  }
+  saveToStorage(activeKey, state.transactions, state.categories);
 });

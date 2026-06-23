@@ -24,6 +24,6 @@ export interface FinanceState {
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
   removeTransaction: (id: string) => void;
   addCategory: (c: Omit<Category, 'id'>) => void;
-  loadForUser: (userId: string) => void;
+  loadForUser: (userId: string | null) => void;
   resetStore: () => void;
 }
